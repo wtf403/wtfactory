@@ -8,6 +8,8 @@ A tarball was produced with `npm pack` and executed with `npm exec --package=<lo
 
 - Personal repository: https://github.com/wtf403/wtfactory-e2e-20261007-personal
 - Organization repository: https://github.com/TestOrgWTF/wtfactory-e2e-20261007-org
+- Fresh personal issue: https://github.com/wtf403/wtfactory-e2e-20261007-personal/issues/1
+- Fresh organization issue: https://github.com/TestOrgWTF/wtfactory-e2e-20261007-org/issues/1
 - Both initial main branches were pushed. Personal Vite production build passed.
 - Normal setup detected the correct repository, compiled the generated workflow, and then stopped with `NEED_PROJECT_SCOPE`. No setup branch or PR was pushed. Neither repository has a board created by this test. Existing GitHub CLI authorization lacks `project` and `read:project`.
 - `TestOrgWTF` is accessible and the user is an active member; successful organization Projects creation is not verified. Organization policy and project-creation permission may require administrator action after OAuth scope approval.
@@ -36,6 +38,7 @@ Deployed endpoint: https://wtfactory-token-broker.wtf403.workers.dev
 - Generated-hook execution test verifies OIDC audience and Authorization headers, masking, and a real newline in `GITHUB_OUTPUT`.
 - Local Git installer tests cover a non-main default branch, repeated installation without new commits/PRs, reuse after merging, compilation failure before push, and missing Projects authorization before push or variables.
 - Board tests cover fresh User and Organization ownership, built-in Status reuse, correctly typed field options, repository linking, repeated creation without duplicate projects/fields, and missing authorization without mutations.
+- All 19 installer/profile/board/package tests and all 19 broker security tests pass.
 - Worker dry-run bundle succeeds. Broker dependency audit reports zero vulnerabilities.
 
 ## Activation gaps
