@@ -53,7 +53,7 @@ Deployed endpoint: https://wtfactory-token-broker.wtf403.workers.dev
 
 1. Approve direct GitHub Projects authorization and repeat both fresh package installs; verify actual boards, fields, repository links and repeat-run idempotency.
 2. Configure a real provider profile/key. `AGENT_API_KEY` is the fixed repository secret; native engine names map to it in the generated workflow.
-3. Install/configure the shared App and configure backend App ID, PKCS8 private key, audience and enrollment policy. The private key never belongs in customer repository secrets.
+3. The user-approved App key was verified against App ID 5214965 and uploaded only to the existing Worker APP_PRIVATE_KEY slot, with PKCS8 conversion in memory and no temporary key copies. APP_ID and OIDC_AUDIENCE are also configured. Authenticated App API checks returned HTTP 404 for the fresh repository installation and no installations on the wtf403 account. App installation and a valid enrollment policy remain missing; health still reports configured:false. The private key never belongs in customer repository secrets.
 4. Automatic authenticated enrollment and persistent enrollment storage are not implemented. Automatic approval review rejected the proposed transmission of the existing GitHub bearer credential to the Worker and creation of Cloudflare KV storage. Neither action was executed.
 5. Runtime Projects status synchronization is not implemented. A personal Project requires separately authorized user access; the repository-scoped App token does not provide it. A scoped organization Projects integration is also separate from the broker's repository token.
 6. Pi's compiled threat detection may require additional authentication. It was not disabled to hide the prerequisite.
