@@ -15,6 +15,14 @@ A tarball was produced with `npm pack` and executed with `npm exec --package=<lo
 - `TestOrgWTF` is accessible and the user is an active member; successful organization Projects creation is not verified. Organization policy and project-creation permission may require administrator action after OAuth scope approval.
 - Interactive setup now starts direct GitHub CLI device authorization on missing Projects scope and retries once after approval. Externally provided tokens and noninteractive runs receive an actionable failure instead of an auth loop. No GitHub bearer credential is transmitted to the broker.
 
+## Additional requested fresh repository
+
+Repository: https://github.com/wtf403/wtfactory-e2e-20261007-fresh
+
+Issue: https://github.com/wtf403/wtfactory-e2e-20261007-fresh/issues/1
+
+The latest installer from this PR was run from the new clean repository. It detected the repository, compiled the workflow and attempted mandatory Projects setup. It stopped on missing Projects scope; no setup branch or PR was pushed and no board was created. The repository contains only its initial main branch. Vite production build passed. A real GitHub CLI device authorization request was started; authorization codes are temporary and must not be treated as persistent validation artifacts.
+
 ## Earlier runtime test
 
 - Private Vite repository: https://github.com/wtf403/wtfactory-broker-e2e-disposable-20261006
