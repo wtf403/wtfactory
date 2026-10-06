@@ -1,13 +1,13 @@
 {
   "name": "wtfactory",
   "version": "0.1.4",
-  "description": "One-command installer: GitHub App + Projects board + Agentic Workflows + ARC runner for any repo",
+  "description": "Repository agent setup with a shared GitHub App token broker",
   "type": "module",
   "bin": {
     "wtfactory": "bin/wtfactory.js"
   },
   "scripts": {
-    "test": "node --check bin/wtfactory.js && node --check lib/gh.js && node --check lib/board.js && node --check lib/app.js && node --check lib/arc.js && node --check lib/setup.js && echo OK"
+    "test": "node --test test/*.test.js && npm --prefix broker test"
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",

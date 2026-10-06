@@ -1,28 +1,27 @@
 # wtfactory
 
-One-command installer: GitHub App + Projects board + Agentic Workflows + ARC runner, for any repo.
+Run `npx wtfactory` from a GitHub repository. The wizard detects the target repository, asks for a preconfigured Pi harness or a user-owned supported agent runtime, collects the endpoint/model and a masked provider key, validates workflow compilation, creates or reuses and links a Projects board, and creates or updates one `factory/setup` PR. Review and merge the PR before dispatching an issue. Factory's source repository cannot be installed.
 
-```sh
-npx wtfactory init OWNER/REPO
-```
+For automation, set `FACTORY_REPO`, `AGENT_MODE=harness|own`, `AGENT_PROFILE=pi|codex|claude|gemini`, `AGENT_MODEL`, optional `AGENT_BASE_URL`, and `AGENT_API_KEY`. `harness` currently supports Pi with an OpenAI-compatible endpoint; `own` preserves repository skills/plugins and supports the listed gh-aw runtimes. Use `--dry-run` to avoid remote mutation. Empty key input retains an existing repository secret. No provider key is committed.
 
-Excalidrop-style: no local server, GitHub is the backend, `gh` CLI does the auth.
+Requires Node 18+, Git, authenticated `gh`, and `gh aw`. Provider authentication and GitHub authentication are separate. Projects creation/linking is required by normal setup and needs project/read:project scope in the authenticated GitHub CLI token. In an interactive terminal, missing Projects scope starts GitHub device authorization and resumes setup when approved. Noninteractive runs and externally supplied GH_TOKEN/GITHUB_TOKEN credentials stop before pushing; provide a credential authorized for Projects and rerun. Organization policy or SSO can require organization approval even with the Projects scope. The local GitHub credential goes only to GitHub, never to the broker. The advanced --skip-projects flag is diagnostic only and explicitly reports an incomplete installation. ARC infrastructure remains optional.
 
-## Flow
+## Shared GitHub App broker
 
-1. **App** — opens `github.com/apps/<slug>/installations/new`; install on the repo, come back.
-2. **Board** — creates the Project V2 (`TODO|Analytics|InProgress|Test|Review|Completed` + fields) via API. Needs `project` scope once: `gh auth refresh -s project`.
-3. **AW** — renders `templates/factory.md` (Pi harness, your gateway), compiles with `gh aw`, opens a `factory/setup` PR.
-4. **Vars/secrets** — `PI_PROVIDER_BASE_URL`, `PI_MODEL`, `PROJECT_URL` as vars; provider key via hidden prompt straight into the repo secret.
-5. **Runner** — writes `arc-scaleset.yaml`, prints the Helm install for your cluster.
+The Cloudflare Worker in `broker/` validates signed GitHub Actions OIDC assertions against GitHub's JWKS, issuer, configured audience, expiration, repository and owner numeric IDs, exact workflow path and trusted branch ref. Pull-request/fork contexts and other events are denied. It confirms the App installation, then requests an installation token limited to that repository and Contents/Issues/Pull requests write. Tokens expire according to GitHub's installation-token lifetime (one hour); do not log them. The App private key lives only in backend secrets.
 
-## Commands
+Set `FACTORY_BROKER_URL` to use the broker. The generated workflow obtains independently masked job-local credentials; credentials do not cross jobs through artifacts or job outputs. Compiler v0.88.7 requires mint hooks in agent, safe_outputs and conclusion because all three consume the safe-output token.
 
-```sh
-npx wtfactory init OWNER/REPO [--app slug] [--runner label] [--board-url URL] [--dry-run]
-npx wtfactory board --owner LOGIN
-npx wtfactory arc --org ORG
-npx wtfactory doctor
-```
+**Current readiness:** automatic enrollment is not implemented. It needs separately approved setup authentication and policy storage. The deployed endpoint is fail-closed until backend configuration and repository enrollment are supplied. Provider keys, the App installation/private key, and any required threat-detection authentication must be available before runtime execution can succeed.
 
-Requires: `gh`, `gh extension install github/gh-aw`, `git`, node 18+.
+Personal Projects require a user credential with Projects scope; organization Projects may use an App granted organization Projects permission. A repository installation token is not a substitute for a personal Projects user token. `PROJECT_URL` records the linked board context; it does not grant runtime board access. Runtime board status synchronization is not implemented yet.
+
+## Broker operator setup
+
+From `broker/`, run `npm install`, `npm test`, and `npm run build`. Deploy using an already authenticated Cloudflare account with `npm run deploy`. Use Wrangler backend secret management for `APP_ID`, `APP_PRIVATE_KEY` (PKCS8 PEM), `OIDC_AUDIENCE` (the exact broker origin), and `REPOSITORY_POLICIES` (JSON map of repository slug to `repositoryId`, `ownerId`, `installationId`, and `ref`). Never place these values in customer repository secrets or the npm package. No Durable Object is used. No webhook is required.
+
+The default Worker name is `wtfactory-token-broker`; inspect your account before deploying to an existing Worker. Unconfigured brokers report `configured:false` at `/health` and return 401 for `/token`.
+
+## Validation
+
+`npm test` runs endpoint/profile tests, local Git integration tests for non-main defaults and idempotent branch/PR setup, and broker signature/claim/installation denial tests. Live compilation uses `gh aw compile`; compiler success is not runtime success. Pi's default threat detection may require Copilot authentication in addition to the provider key; the installer does not disable detection to hide that prerequisite.
