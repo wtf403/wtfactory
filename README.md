@@ -12,9 +12,9 @@ The Cloudflare Worker in `broker/` validates signed GitHub Actions OIDC assertio
 
 Set `FACTORY_BROKER_URL` to use the broker. The generated workflow obtains independently masked job-local credentials; credentials do not cross jobs through artifacts or job outputs. Compiler v0.88.7 requires mint hooks in agent, safe_outputs and conclusion because all three consume the safe-output token.
 
-**Current readiness:** automatic enrollment is not implemented. It needs separately approved setup authentication and policy storage. The deployed endpoint is fail-closed until backend configuration and repository enrollment are supplied. Provider keys, the App installation/private key, and any required threat-detection authentication must be available before runtime execution can succeed.
+**Current readiness:** automatic enrollment is not implemented. It needs separately approved setup authentication and policy storage. The broker permits only explicitly enrolled repositories; live token minting is verified for the disposable test repo in docs/VALIDATION.md. Provider keys, the App installation/private key, and any required threat-detection authentication must be available before runtime execution can succeed.
 
-Personal Projects require a user credential with Projects scope; organization Projects may use an App granted organization Projects permission. A repository installation token is not a substitute for a personal Projects user token. `PROJECT_URL` records the linked board context; it does not grant runtime board access. Runtime board status synchronization is not implemented yet.
+Personal Projects require a user credential with Projects scope; enabling App device flow does not itself grant Projects permission; organization Projects may use an App granted organization Projects permission. A repository installation token is not a substitute for a personal Projects user token. `PROJECT_URL` records the linked board context; it does not grant runtime board access. Runtime board status synchronization is not implemented yet.
 
 ## Broker operator setup
 

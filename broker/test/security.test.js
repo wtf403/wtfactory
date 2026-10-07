@@ -30,6 +30,22 @@ test("accept enrolled main workflow identity", () =>
     authorizeClaims(claims, policies, claims.aud),
     policies["owner/repo"],
   ));
+test("accept new immutable GitHub subject only with enrolled owner and repository IDs", () => {
+  const sub = "repo:owner@456/repo@123:ref:refs/heads/main";
+  assert.deepEqual(
+    authorizeClaims({ ...claims, sub }, policies, claims.aud),
+    policies["owner/repo"],
+  );
+  for (const bad of [
+    "repo:owner@999/repo@123:ref:refs/heads/main",
+    "repo:owner@456/repo@999:ref:refs/heads/main",
+    "repo:owner@456/repo@123:pull_request",
+    "repo:owner@456/repo@123:ref:refs/heads/evil",
+  ])
+    assert.throws(() =>
+      authorizeClaims({ ...claims, sub: bad }, policies, claims.aud),
+    );
+});
 for (const [name, value] of Object.entries({
   iss: "evil",
   aud: "evil",

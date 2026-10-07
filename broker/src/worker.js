@@ -38,11 +38,16 @@ export function authorizeClaims(
     String(c.repository_owner_id) !== String(p.ownerId)
   )
     reject();
+  const [owner, repository] = c.repository.split("/");
+  const subjects = [
+    `repo:${c.repository}:ref:${p.ref}`,
+    `repo:${owner}@${p.ownerId}/${repository}@${p.repositoryId}:ref:${p.ref}`,
+  ];
   if (
     c.ref !== p.ref ||
     c.workflow_ref !==
       `${c.repository}/.github/workflows/factory.lock.yml@${p.ref}` ||
-    c.sub !== `repo:${c.repository}:ref:${p.ref}`
+    !subjects.includes(c.sub)
   )
     reject();
   if (
