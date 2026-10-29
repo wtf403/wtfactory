@@ -1,0 +1,42 @@
+name: factory session
+# Deterministic session controller for the factory.
+# It runs the real controller code on the runner, claims one delivery, and
+# dispatches the agentic workflow (factory.lock.yml) that carries the harness.
+on:
+  workflow_dispatch:
+    inputs:
+      number:
+        description: 'Issue or pull request number to open a chat session for'
+        required: true
+        type: string
+      phase:
+        description: 'Board phase (the board is authoritative; this is a hint)'
+        required: false
+        type: string
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  actions: write
+concurrency:
+  group: factory-session-${{ github.event.inputs.number }}
+  cancel-in-progress: false
+jobs:
+  session:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: claim, collect steering, dispatch the harness session
+        env:
+          FACTORY_HARNESS: codex
+          FACTORY_MODEL: gpt-5.2-codex
+          FACTORY_NUMBER: ${{ github.event.inputs.number }}
+          FACTORY_STATUS: ${{ github.event.inputs.phase }}
+          GH_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          AGENT_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node .github/factory/chat-session.mjs --dispatch
+
